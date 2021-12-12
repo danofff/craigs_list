@@ -1,0 +1,53 @@
+.post {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  color: #444;
+}
+
+.post__actions {
+  display: flex;
+  margin-top: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post__actions--disabled {
+  display: none;
+}
+
+.post__actions-buttons {
+  display: flex;
+  align-items: center;
+  padding-right: 0.2rem;
+}
+
+.post__actions-button {
+  outline: none;
+  color: #fff;
+  padding: 0.2rem;
+  margin-left: 0.75rem;
+  border-radius: 50%;
+  border: none;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.edit {
+  background: orange;
+}
+
+.edit:hover {
+  background: #e49605;
+}
+
+.delete {
+  background: #ff3131;
+}
+
+.delete:hover {
+  background: #bf1f1f;
+}

@@ -1,0 +1,7 @@
+.alerts {
+  position: fixed;
+  top: 100px;
+  margin: 0 auto;
+  max-width: 980px;
+  width: 90%;
+}

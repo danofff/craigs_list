@@ -1,0 +1,20 @@
+.profile__header {
+  text-align: center;
+  color: #ed1c24;
+}
+
+.to-me {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.from-me {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.profile__title {
+  margin-bottom: 1rem;
+  color: #9c27b0;
+}

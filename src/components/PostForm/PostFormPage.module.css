@@ -1,0 +1,20 @@
+.header {
+  text-align: center;
+  text-transform: uppercase;
+  font-family: "Roboto Slab", sans-serif;
+  font-size: 2rem;
+  margin: 1rem 0;
+}
+
+.post-form {
+  max-width: 500px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin: 0 auto;
+}
+
+.post-form__button {
+  margin-top: 1.5rem;
+}

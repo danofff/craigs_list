@@ -1,0 +1,14 @@
+.add-message__form {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.add-message__header {
+  margin-bottom: 1rem;
+}
+
+.button {
+  margin-top: 1rem !important;
+}
