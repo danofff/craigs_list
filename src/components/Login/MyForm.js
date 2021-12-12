@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import TextField from "@mui/material/TextField";
 
+import TextField from "@mui/material/TextField";
 import { StyledButton } from "../UI/StyledButton";
 import { apiBaseUrl } from "../../util/variables";
 
@@ -66,7 +66,7 @@ const MyForm = ({ setAuthUser, type, setIsError }) => {
       return;
     }
 
-    //depends form mode sholud register or login
+    //depends form mode should register or login
     const pathChunk = type === "signup" ? "register" : "login";
     async function fetchLoginUser() {
       //sending request

@@ -6,6 +6,7 @@ import makeHader from "../../util/makeheaders";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
 import { StyledButton } from "../UI/StyledButton";
 import PostInfo from "../Posts/PostInfo";
+import Snackbar from "../UI/Snackbar";
 
 import classes from "./AddMessagePage.module.css";
 
@@ -13,6 +14,7 @@ const AddMessagePage = ({ user, posts }) => {
   const postId = useParams().id;
   const [post, setPost] = useState(null);
   const [messageInput, setMessageInput] = useState("");
+  const [error, setError] = useState({ isError: false, message: "" });
 
   useEffect(() => {
     console.log();
@@ -45,10 +47,11 @@ const AddMessagePage = ({ user, posts }) => {
       if (data.success) {
         setMessageInput("");
       } else {
-        throw new Error();
+        throw new Error(data.error.message);
       }
     } catch (error) {
       console.log(error);
+      setError({ isError: true, message: error.message });
     }
   };
 
@@ -58,6 +61,12 @@ const AddMessagePage = ({ user, posts }) => {
         <p>Loading...</p>
       ) : (
         <>
+          <Snackbar
+            type="error"
+            message={error.message}
+            isOpen={error.isError}
+            setError={setError}
+          />
           <PostInfo data={post} />
           <form
             className={classes["add-message__form"]}

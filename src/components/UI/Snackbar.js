@@ -2,8 +2,28 @@ import * as React from "react";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 
-export default function CustomizedSnackbars() {
+export default function CustomizedSnackbars({
+  isOpen,
+  type,
+  message,
+  setError,
+}) {
   const [open, setOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    setOpen(isOpen);
+    let timeOut;
+    if (isOpen) {
+      timeOut = setTimeout(() => {
+        setError({ isError: false, message: "" });
+      }, 4000);
+    }
+    return () => {
+      if (timeOut) {
+        clearTimeout(timeOut);
+      }
+    };
+  }, [isOpen]);
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -17,9 +37,14 @@ export default function CustomizedSnackbars() {
   });
 
   return (
-    <Snackbar open={open} autoHideDuration={600} onClose={handleClose}>
-      <Alert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
-        This is a success message!
+    <Snackbar
+      open={open}
+      autoHideDuration={6000}
+      onClose={handleClose}
+      anchorOrigin={{ vertical: "top", horizontal: "center" }}
+    >
+      <Alert onClose={handleClose} severity={type} sx={{ width: "100%" }}>
+        {message}
       </Alert>
     </Snackbar>
   );

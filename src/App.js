@@ -10,10 +10,12 @@ import MainContainer from "./components/UI/MainContainer";
 import Header from "./components/Header/Header";
 import PostFormPage from "./components/PostForm/PostFormPage";
 import ProfilePage from "./components/Profile/ProfilePage";
+import PageNotFound from "./components/UI/PageNotFound";
 
 import "./App.css";
 import SinglePostPage from "./components/Posts/SinglePostPage";
 import AddMessagePage from "./components/Messages/AddMessagePage";
+import { Snackbar } from "@mui/material";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -79,12 +81,15 @@ function App() {
         headers: makeHeaders(user),
       });
       const result = await response.json();
-      console.log(result);
-      setPosts((prev) => {
-        return prev.filter((post) => {
-          return post._id !== postId;
+      if (result.success) {
+        setPosts((prev) => {
+          return prev.filter((post) => {
+            return post._id !== postId;
+          });
         });
-      });
+      } else {
+        throw Error(result.error.message);
+      }
     } catch (error) {
       setError({ isError: true, message: error.message });
     }
@@ -92,6 +97,12 @@ function App() {
 
   return (
     <>
+      <Snackbar
+        type="error"
+        message={error.message}
+        setError={setError}
+        isOpen={error.isError}
+      />
       <Header logUserOut={onLogoutHandler} user={user} />
       <MainContainer>
         <Routes>
@@ -103,7 +114,7 @@ function App() {
                 user={user}
                 posts={posts}
                 setPosts={setPosts}
-                deletePostHandler={deletePostHandler}
+                deletePost={deletePostHandler}
               />
             }
           />
@@ -114,33 +125,47 @@ function App() {
                 user={user}
                 posts={posts}
                 setPosts={setPosts}
-                deletePostHandler={deletePostHandler}
-              />
-            }
-          />
-          <Route
-            path="/posts/add"
-            element={<PostFormPage user={user} mode="add" posts={posts} />}
-          />
-          <Route
-            path="/posts/edit/:id"
-            element={<PostFormPage user={user} mode="edit" posts={posts} />}
-          />
-          <Route
-            path="/posts/:id"
-            element={
-              <SinglePostPage
-                user={user}
-                posts={posts}
                 deletePost={deletePostHandler}
               />
             }
           />
-          <Route
-            path="/posts/:id/addmessage"
-            element={<AddMessagePage user={user} posts={posts} />}
-          />
-          <Route path="/profile" element={<ProfilePage user={user} />} />
+          {user ? (
+            <Route
+              path="/posts/add"
+              element={<PostFormPage user={user} mode="add" posts={posts} />}
+            />
+          ) : null}
+
+          {user ? (
+            <Route
+              path="/posts/edit/:id"
+              element={<PostFormPage user={user} mode="edit" posts={posts} />}
+            />
+          ) : null}
+
+          {user ? (
+            <Route
+              path="/posts/:id"
+              element={
+                <SinglePostPage
+                  user={user}
+                  posts={posts}
+                  deletePost={deletePostHandler}
+                />
+              }
+            />
+          ) : null}
+
+          {user ? (
+            <Route
+              path="/posts/:id/addmessage"
+              element={<AddMessagePage user={user} posts={posts} />}
+            />
+          ) : null}
+          {user ? (
+            <Route path="/profile" element={<ProfilePage user={user} />} />
+          ) : null}
+          <Route path="*" element={<PageNotFound />} />
         </Routes>
       </MainContainer>
     </>

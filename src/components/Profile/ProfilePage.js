@@ -31,7 +31,7 @@ const ProfilePage = ({ user }) => {
         PROFILE OF -{userFetched.username}-
       </h1>
       <div className={classes["to-me"]}>
-        <h2 className={classes.profile__title}>&#8594;Messages to me</h2>
+        <h2 className={classes.profile__title}>&#8594;Messages received</h2>
         {messages
           .filter((message) => {
             return message.fromUser._id !== userFetched.id;
@@ -45,7 +45,7 @@ const ProfilePage = ({ user }) => {
           ))}
       </div>
       <div className={classes["from-me"]}>
-        <h2 className={classes.profile__title}>Messages from me &#8594;</h2>
+        <h2 className={classes.profile__title}>Messages sent &#8594;</h2>
         {messages
           .filter((message) => {
             return message.fromUser._id === userFetched.id;

@@ -22,6 +22,7 @@ export default function BasicModal({
   text,
   setShowModal,
   setShouldDeletePost,
+  setDeletedPost,
 }) {
   const [open, setOpen] = React.useState(isModalOpen);
 
@@ -31,11 +32,16 @@ export default function BasicModal({
 
   const handleClose = () => {
     setShowModal(false);
+    setDeletedPost(null);
+  };
+
+  const handleCloseAfterDelete = () => {
+    setShowModal(false);
   };
 
   const onDeleteHandler = () => {
     setShouldDeletePost(true);
-    handleClose();
+    handleCloseAfterDelete();
   };
 
   return (

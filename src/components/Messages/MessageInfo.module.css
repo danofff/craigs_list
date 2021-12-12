@@ -8,6 +8,12 @@
   margin-bottom: 1rem;
 }
 
+@media (max-width: 750px) {
+  .message {
+    width: 85%;
+  }
+}
+
 .message a {
   text-decoration: none;
 }

@@ -50,8 +50,10 @@
 .mobile-navigation a:hover,
 .mobile-navigation button:hover {
   color: #ed1c24;
+  border: 2px solid #ed1c24;
 }
 .mobile-navigation a:active,
 .mobile-navigation button:active {
   color: #ed1c24;
+  border: 2px solid #ed1c24;
 }

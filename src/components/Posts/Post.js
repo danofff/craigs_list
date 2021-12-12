@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 import Paper from "@mui/material/Paper";
 import Tooltip from "@mui/material/Tooltip";
@@ -11,18 +12,27 @@ import PostInfo from "./PostInfo";
 
 import classes from "./Post.module.css";
 
-const Post = ({ data, deletePost, user }) => {
+const Post = ({ data, setShowModal, user, setDeletedPost, deletedPost }) => {
   const navigate = useNavigate();
+
+  //set delete Post
   const onDeleteClickHandler = (event) => {
-    deletePost(data._id);
+    setDeletedPost(data);
   };
+
+  //then show Modal
+  useEffect(() => {
+    if (deletedPost) {
+      setShowModal(true);
+    }
+  }, [deletedPost]);
+
   const onEditClickHandler = (event) => {
     navigate(`/posts/edit/${data._id}`);
   };
   const onClickGoToPostHandler = (event) => {
     navigate(`/posts/${data._id}`);
   };
-
   const onClickAddMessageHandler = (event) => {
     navigate(`/posts/${data._id}/addmessage`);
   };

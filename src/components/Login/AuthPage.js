@@ -1,9 +1,9 @@
 import { useState } from "react";
-import Alerts from "../UI/Alerts";
 
 import Switch from "@mui/material/Switch";
-
+import Snackbar from "../UI/Snackbar";
 import MyForm from "./MyForm";
+
 import classes from "./AuthPage.module.css";
 
 const LoginPage = ({ setAuthUser }) => {
@@ -22,7 +22,12 @@ const LoginPage = ({ setAuthUser }) => {
   };
   return (
     <div>
-      <Alerts error={error} setError={setError} />
+      <Snackbar
+        isOpen={error.isError}
+        type="error"
+        message={error.message}
+        setError={setError}
+      />
       <MyForm type={formType} setAuthUser={setAuthUser} setIsError={setError} />
       <div className={classes["switch-form"]}>
         <Switch

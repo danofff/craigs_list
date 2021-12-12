@@ -6,6 +6,7 @@ import Checkbox from "@mui/material/Checkbox";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import { StyledButton } from "../UI/StyledButton";
+import Snackbar from "../UI/Snackbar";
 import makeheaders from "../../util/makeheaders";
 import { apiBaseUrl } from "../../util/variables";
 
@@ -23,6 +24,14 @@ const PostFormPage = ({ user, mode, posts }) => {
     setDeliveryCheck(false);
   }
 
+  const [titleInput, setTitleInput] = useState("");
+  const [descriptionInput, setDescriptionInput] = useState("");
+  const [priceInput, setPriceInput] = useState("");
+  const [locationInput, setLocationInput] = useState("");
+  const [deliveryCheck, setDeliveryCheck] = useState(false);
+
+  const [error, setError] = useState({ isError: false, message: "" });
+
   useEffect(() => {
     clearFields();
     if (mode === "edit") {
@@ -37,12 +46,6 @@ const PostFormPage = ({ user, mode, posts }) => {
       });
     }
   }, [mode, posts, editedPostId.id]);
-
-  const [titleInput, setTitleInput] = useState("");
-  const [descriptionInput, setDescriptionInput] = useState("");
-  const [priceInput, setPriceInput] = useState("");
-  const [locationInput, setLocationInput] = useState("");
-  const [deliveryCheck, setDeliveryCheck] = useState(false);
 
   const onBackButtonClick = () => {
     navigate("/");
@@ -99,9 +102,13 @@ const PostFormPage = ({ user, mode, posts }) => {
       });
 
       const result = await response.json();
-      console.log(result);
-      navigate("/");
+      if (result.success) {
+        navigate("/");
+      } else {
+        throw new Error(result.error.message);
+      }
     } catch (error) {
+      setError({ isError: true, message: error.message });
       console.log(error);
     }
   }
@@ -122,14 +129,25 @@ const PostFormPage = ({ user, mode, posts }) => {
       });
 
       const result = await response.json();
-      navigate("/");
+      if (result.success) {
+        navigate("/");
+      } else {
+        throw new Error(result.error.message);
+      }
     } catch (error) {
+      setError({ isError: true, message: error.message });
       console.log(error);
     }
   }
 
   return (
     <>
+      <Snackbar
+        isOpen={error.isError}
+        setError={setError}
+        message={error.message}
+        type="error"
+      />
       <h1 className={classes.header}>
         {mode === "add" ? "Create a Post" : "Edit the Post"}
       </h1>

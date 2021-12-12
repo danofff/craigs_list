@@ -1,9 +1,13 @@
 import Post from "./Post";
 import classes from "./PostList.module.css";
 
-import Modal from "../UI/Modal";
-
-const PostList = ({ posts, deletePost, user }) => {
+const PostList = ({
+  posts,
+  setShowModal,
+  user,
+  setDeletedPost,
+  deletedPost,
+}) => {
   return (
     <ul className={classes.posts}>
       {posts.map((post) => (
@@ -11,7 +15,9 @@ const PostList = ({ posts, deletePost, user }) => {
           user={user}
           key={post._id}
           data={post}
-          deletePost={post.isAuthor ? deletePost : null}
+          setShowModal={setShowModal}
+          setDeletedPost={setDeletedPost}
+          deletedPost={deletedPost}
         />
       ))}
     </ul>
