@@ -97,6 +97,7 @@ const PostFormPage = ({ user, mode, posts }) => {
             description: descriptionInput,
             price: `$${priceInput}`,
             willDeliver: deliveryCheck,
+            location: locationInput,
           },
         }),
       });
