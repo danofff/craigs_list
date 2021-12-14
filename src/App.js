@@ -15,7 +15,7 @@ import PageNotFound from "./components/UI/PageNotFound";
 import "./App.css";
 import SinglePostPage from "./components/Posts/SinglePostPage";
 import AddMessagePage from "./components/Messages/AddMessagePage";
-import { Snackbar } from "@mui/material";
+import Snackbar from "./components/UI/Snackbar";
 
 function App() {
   const [user, setUser] = useState(null);
