@@ -5,6 +5,7 @@
   left: 50%;
   transform: translateX(-50%);
   width: 70%;
+  max-width: 980px;
   z-index: 102;
   display: flex;
   justify-content: space-between;
