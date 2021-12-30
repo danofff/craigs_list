@@ -1,20 +1,22 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 import TextField from "@mui/material/TextField";
 import Checkbox from "@mui/material/Checkbox";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import { StyledButton } from "../UI/StyledButton";
-import Snackbar from "../UI/Snackbar";
-import makeheaders from "../../util/makeheaders";
-import { apiBaseUrl } from "../../util/variables";
 
 import classes from "./PostFormPage.module.css";
+import { addPost, editPost } from "../../store/postsActions";
 
-const PostFormPage = ({ user, mode, posts }) => {
+const PostFormPage = ({ mode, posts }) => {
+  const user = useSelector((state) => state.user.user);
+  const dispatch = useDispatch();
+
   const navigate = useNavigate();
-  const editedPostId = useParams();
+  const editedPostId = useParams().id;
 
   function clearFields() {
     setTitleInput("");
@@ -30,13 +32,11 @@ const PostFormPage = ({ user, mode, posts }) => {
   const [locationInput, setLocationInput] = useState("");
   const [deliveryCheck, setDeliveryCheck] = useState(false);
 
-  const [error, setError] = useState({ isError: false, message: "" });
-
   useEffect(() => {
     clearFields();
     if (mode === "edit") {
       posts.forEach((post) => {
-        if (post._id === editedPostId.id) {
+        if (post._id === editedPostId) {
           setTitleInput(post.title);
           setDescriptionInput(post.description);
           setPriceInput(Number.parseFloat(post.price.slice(1)) || 0);
@@ -45,7 +45,7 @@ const PostFormPage = ({ user, mode, posts }) => {
         }
       });
     }
-  }, [mode, posts, editedPostId.id]);
+  }, [mode, posts, editedPostId]);
 
   const onBackButtonClick = () => {
     navigate("/");
@@ -79,76 +79,31 @@ const PostFormPage = ({ user, mode, posts }) => {
 
   const onSubmitFormHandler = (event) => {
     event.preventDefault();
+
+    //create post object
+    const createdPost = {
+      title: titleInput,
+      description: descriptionInput,
+      price: `$${priceInput}`,
+      willDeliver: deliveryCheck,
+      location: locationInput,
+    };
+
     if (mode === "add") {
-      fetchCreatePost();
+      const isPostCreated = dispatch(addPost(createdPost, user));
+      if (isPostCreated) {
+        navigate(-1);
+      }
     } else {
-      fetchEditPost();
+      const isPostEdited = dispatch(editPost(editedPostId, createdPost, user));
+      if (isPostEdited) {
+        navigate(-1);
+      }
     }
   };
 
-  async function fetchCreatePost() {
-    try {
-      const response = await fetch(`${apiBaseUrl}/posts`, {
-        method: "POST",
-        headers: makeheaders(user),
-        body: JSON.stringify({
-          post: {
-            title: titleInput,
-            description: descriptionInput,
-            price: `$${priceInput}`,
-            willDeliver: deliveryCheck,
-            location: locationInput,
-          },
-        }),
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        navigate("/");
-      } else {
-        throw new Error(result.error.message);
-      }
-    } catch (error) {
-      setError({ isError: true, message: error.message });
-      console.log(error);
-    }
-  }
-
-  async function fetchEditPost() {
-    try {
-      const response = await fetch(`${apiBaseUrl}/posts/${editedPostId.id}`, {
-        method: "PATCH",
-        headers: makeheaders(user),
-        body: JSON.stringify({
-          post: {
-            title: titleInput,
-            description: descriptionInput,
-            price: `$${priceInput}`,
-            willDeliver: deliveryCheck,
-          },
-        }),
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        navigate("/");
-      } else {
-        throw new Error(result.error.message);
-      }
-    } catch (error) {
-      setError({ isError: true, message: error.message });
-      console.log(error);
-    }
-  }
-
   return (
     <>
-      <Snackbar
-        isOpen={error.isError}
-        setError={setError}
-        message={error.message}
-        type="error"
-      />
       <h1 className={classes.header}>
         {mode === "add" ? "Create a Post" : "Edit the Post"}
       </h1>

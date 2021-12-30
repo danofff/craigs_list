@@ -1,22 +1,32 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 import Tooltip from "@mui/material/Tooltip";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-
 import PostInfo from "../Posts/PostInfo";
 import MessageInfo from "../Messages/MessageInfo";
-import Modal from "../UI/Modal";
+import MyModal from "../UI/MyModal";
+import { deletePost } from "../../store/postsActions";
+
 import classes from "./SinglePostPage.module.css";
 
-const SinglePostPage = ({ user, posts, deletePost }) => {
+const SinglePostPage = ({ posts }) => {
+  const user = useSelector((state) => state.user.user);
+
   const [post, setPost] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [shouldDeletePost, setShouldDeletePost] = useState(false);
+  const [isPostDeleted, setIsPostDeleted] = useState(false);
 
   const navigate = useNavigate();
   const postId = useParams().id;
+
+  useEffect(() => {
+    if (isPostDeleted) {
+      navigate(-1);
+    }
+  }, [isPostDeleted, navigate]);
 
   useEffect(() => {
     posts.forEach((post) => {
@@ -25,18 +35,12 @@ const SinglePostPage = ({ user, posts, deletePost }) => {
         return;
       }
     });
-  }, [user, posts]);
+  }, [user, posts, postId]);
 
-  useEffect(() => {
-    if (shouldDeletePost) {
-      deletePost(post._id);
-      navigate("/posts");
-    }
-  }, [shouldDeletePost]);
-
-  const onDeleteClickHandler = (event) => {
+  const onDeleteClickHandler = () => {
     setShowModal(true);
   };
+
   const onEditClickHandler = (event) => {
     navigate(`/posts/edit/${post._id}`);
   };
@@ -44,12 +48,16 @@ const SinglePostPage = ({ user, posts, deletePost }) => {
   if (post) {
     content = (
       <>
-        <Modal
-          isModalOpen={showModal}
-          setShowModal={setShowModal}
-          title={`Delete "${post.title}"?`}
-          text="Are you sure you want to delete this post?"
-          setShouldDeletePost={setShouldDeletePost}
+        <MyModal
+          title={`Delete -${post.title}-?`}
+          text={"Are you sure you want to delete this post?"}
+          onYesClickFunc={() => {
+            return deletePost(postId, user);
+          }}
+          isOpen={showModal}
+          setIsOpen={setShowModal}
+          setModalResult={setIsPostDeleted}
+          yesButtonText="DELETE"
         />
         <PostInfo data={post} />
         {/* action buttons */}

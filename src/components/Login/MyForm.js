@@ -1,16 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import TextField from "@mui/material/TextField";
 import { StyledButton } from "../UI/StyledButton";
-import { apiBaseUrl } from "../../util/variables";
+import { authUser } from "../../store/userActions";
 
 import classes from "./MyForm.module.css";
 
-const MyForm = ({ setAuthUser, type, setIsError }) => {
+const MyForm = ({ type }) => {
+  const dispatch = useDispatch();
   //state for username and password inputs
-  const [usernameInput, setUsernameInput] = useState("");
-  const [passwordInput, setPasswordInput] = useState("");
+  const [usernameInput, setUsernameInput] = useState({
+    text: "",
+    touched: false,
+  });
+  const [passwordInput, setPasswordInput] = useState({
+    text: "",
+    touched: false,
+  });
 
   const [usernameIsValid, setUsernameIsValid] = useState(null);
   const [passwordIsValid, setPasswordIsValid] = useState(null);
@@ -18,88 +26,95 @@ const MyForm = ({ setAuthUser, type, setIsError }) => {
   //create navigate object
   const navigate = useNavigate();
 
-  //check validation on inputs change
-  useEffect(() => {
-    if (usernameIsValid !== null) {
-      userInputValidation();
-    }
+  //handle inputs change
+  const onUsernameInputChange = (event) => {
+    setUsernameInput((prevState) => {
+      return { ...prevState, text: event.target.value };
+    });
+  };
+  const onPasswrodInputChange = (event) => {
     if (passwordIsValid !== null) {
       passwordInputValidation();
     }
-  }, [usernameInput, passwordInput]);
-
-  //handle inputs change
-  const onUsernameInputChange = (event) => {
-    setUsernameInput(event.target.value);
-  };
-  const onPasswrodInputChange = (event) => {
-    setPasswordInput(event.target.value);
+    setPasswordInput((prevState) => {
+      return { ...prevState, text: event.target.value };
+    });
   };
 
   // //handle validation with onBlur events
   const onBlurUsernameInputHandler = (event) => {
-    userInputValidation();
+    setUsernameInput((prevState) => {
+      return { ...prevState, touched: true };
+    });
   };
   const onBlurPasswordInputHandler = (event) => {
-    passwordInputValidation();
+    setPasswordInput((prevState) => {
+      return { ...prevState, touched: true };
+    });
   };
 
-  const userInputValidation = () => {
+  const userInputValidation = useCallback(() => {
     if (usernameInput !== null) {
-      usernameInput.length >= 3
+      usernameInput.text.length >= 3
         ? setUsernameIsValid(true)
         : setUsernameIsValid(false);
     }
-  };
-  const passwordInputValidation = () => {
-    return passwordInput.length >= 4
+  }, [usernameInput]);
+
+  const passwordInputValidation = useCallback(() => {
+    return passwordInput.text.length >= 4
       ? setPasswordIsValid(true)
       : setPasswordIsValid(false);
-  };
+  }, [passwordInput]);
+
+  useEffect(() => {
+    if (usernameInput.touched) {
+      userInputValidation();
+    }
+    if (passwordInput.touched) {
+      passwordInputValidation();
+    }
+  }, [
+    usernameInput,
+    passwordInput,
+    userInputValidation,
+    passwordInputValidation,
+  ]);
 
   //handle form submition
-  const onSubmitFormHandler = (event) => {
+  const onSubmitFormHandler = async (event) => {
     event.preventDefault();
 
     //check if inputs are valid, if they are not, return without form submition
     if (!usernameIsValid || !passwordIsValid) {
+      setUsernameInput((prevState) => {
+        return { ...prevState, touched: true };
+      });
+      setPasswordInput((prevState) => {
+        return { ...prevState, touched: true };
+      });
       return;
     }
 
-    //depends form mode should register or login
-    const pathChunk = type === "signup" ? "register" : "login";
-    async function fetchLoginUser() {
-      //sending request
-      try {
-        const response = await fetch(`${apiBaseUrl}/users/${pathChunk}`, {
-          method: "POST",
-          headers: {
-            "Content-type": "Application/json",
-          },
-          body: JSON.stringify({
-            user: {
-              username: usernameInput,
-              password: passwordInput,
-            },
-          }),
-        });
-        const data = await response.json();
-        if (data.success) {
-          setAuthUser({
-            username: usernameInput,
-            token: data.data.token,
-          });
-          navigate("/");
-        } else {
-          throw new Error(data.error.message);
-        }
-      } catch (error) {
-        setUsernameInput("");
-        setPasswordInput("");
-        setIsError({ isError: true, message: error.message });
-      }
+    //DISPATCHIN ACTION IN USER ACTIONS
+    const isSuccess = await dispatch(
+      authUser(
+        { username: usernameInput.text, password: passwordInput.text },
+        type
+      )
+    );
+    if (isSuccess) {
+      navigate("/posts");
+    } else {
+      setUsernameInput({
+        text: "",
+        touched: true,
+      });
+      setPasswordInput({
+        text: "",
+        touched: true,
+      });
     }
-    fetchLoginUser();
   };
 
   return (
@@ -117,7 +132,7 @@ const MyForm = ({ setAuthUser, type, setIsError }) => {
           label={"Username"}
           id="username"
           margin="dense"
-          value={usernameInput}
+          value={usernameInput.text}
           onChange={onUsernameInputChange}
           required
           autoComplete="false"
@@ -132,7 +147,7 @@ const MyForm = ({ setAuthUser, type, setIsError }) => {
           type="password"
           id="password"
           margin="dense"
-          value={passwordInput}
+          value={passwordInput.text}
           onChange={onPasswrodInputChange}
           required
           autoComplete="false"

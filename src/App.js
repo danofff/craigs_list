@@ -1,8 +1,6 @@
-import { useState, useEffect } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
-
-import { apiBaseUrl } from "./util/variables";
-import makeHeaders from "./util/makeheaders";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import PostsPage from "./components/Posts/PostsPage";
 import AuthPage from "./components/Login/AuthPage";
@@ -15,120 +13,29 @@ import PageNotFound from "./components/UI/PageNotFound";
 import "./App.css";
 import SinglePostPage from "./components/Posts/SinglePostPage";
 import AddMessagePage from "./components/Messages/AddMessagePage";
-import Snackbar from "./components/UI/Snackbar";
+
+import { fetchUserAndPosts } from "./store/userActions";
+import MySnackBar from "./components/UI/MySnackBar";
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [posts, setPosts] = useState([]);
-  const [error, setError] = useState({ isError: false, message: "" });
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.user);
+  const posts = useSelector((state) => state.posts.posts);
 
-  const navigate = useNavigate();
-
-  //retrive user from local storage  and posts fetching from api with firs application download
+  //fetching user from localStorage and posts on first App load
   useEffect(() => {
-    const userFromStorage = localStorage.getItem("user");
-    if (userFromStorage) {
-      const retrivedUser = JSON.parse(userFromStorage);
-      setUser(retrivedUser);
-    }
-    const fetchAllPosts = async () => {
-      try {
-        const response = await fetch(`${apiBaseUrl}posts`, {
-          method: "GET",
-          headers: makeHeaders(user),
-        });
-        const data = await response.json();
-
-        //check if success request
-        if (data.success) {
-          //set post data if success
-          setPosts(data.data.posts);
-        } else {
-          //throw error
-          throw new Error(data.error.message);
-        }
-      } catch (error) {
-        //set error message
-        console.log(error.message);
-        setError({
-          isError: true,
-          message: "Something went wrong, try again later.",
-        });
-      }
-    };
-
-    fetchAllPosts();
-  }, []);
-
-  //store user in state and in localstorage
-  const storeUser = (user) => {
-    localStorage.setItem("user", JSON.stringify(user));
-    setUser(user);
-  };
-
-  //delete user from state and from localstrotage
-  const onLogoutHandler = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-    navigate("/");
-  };
-
-  //delete post
-  const deletePostHandler = async (postId) => {
-    try {
-      const response = await fetch(`${apiBaseUrl}/posts/${postId}`, {
-        method: "DELETE",
-        headers: makeHeaders(user),
-      });
-      const result = await response.json();
-      if (result.success) {
-        setPosts((prev) => {
-          return prev.filter((post) => {
-            return post._id !== postId;
-          });
-        });
-      } else {
-        throw Error(result.error.message);
-      }
-    } catch (error) {
-      setError({ isError: true, message: error.message });
-    }
-  };
+    dispatch(fetchUserAndPosts());
+  }, [dispatch]);
 
   return (
     <>
-      <Snackbar
-        type="error"
-        message={error.message}
-        setError={setError}
-        isOpen={error.isError}
-      />
-      <Header logUserOut={onLogoutHandler} user={user} />
+      <MySnackBar />
+      <Header />
       <MainContainer>
         <Routes>
-          <Route path="/auth" element={<AuthPage setAuthUser={storeUser} />} />
-          <Route
-            path="/posts"
-            element={
-              <PostsPage
-                user={user}
-                posts={posts}
-                setPosts={setPosts}
-                deletePost={deletePostHandler}
-              />
-            }
-          />
-          <Route
-            path="/"
-            element={
-              <PostsPage
-                user={user}
-                posts={posts}
-                setPosts={setPosts}
-                deletePost={deletePostHandler}
-              />
-            }
-          />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/posts" element={<PostsPage user={user} />} />
+          <Route path="/" element={<Navigate replace to="/posts" />} />
           {user ? (
             <Route
               path="/posts/add"
@@ -146,13 +53,7 @@ function App() {
           {user ? (
             <Route
               path="/posts/:id"
-              element={
-                <SinglePostPage
-                  user={user}
-                  posts={posts}
-                  deletePost={deletePostHandler}
-                />
-              }
+              element={<SinglePostPage user={user} posts={posts} />}
             />
           ) : null}
 

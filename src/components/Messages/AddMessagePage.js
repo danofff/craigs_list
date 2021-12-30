@@ -1,29 +1,30 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
-import { apiBaseUrl } from "../../util/variables";
-import makeHader from "../../util/makeheaders";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
 import { StyledButton } from "../UI/StyledButton";
 import PostInfo from "../Posts/PostInfo";
-import Snackbar from "../UI/Snackbar";
+import { sendMessage } from "../../store/postsActions";
 
 import classes from "./AddMessagePage.module.css";
 
-const AddMessagePage = ({ user, posts }) => {
+const AddMessagePage = () => {
   const postId = useParams().id;
   const [post, setPost] = useState(null);
+  const user = useSelector((state) => state.user.user);
+  const posts = useSelector((state) => state.posts.posts);
   const [messageInput, setMessageInput] = useState("");
-  const [error, setError] = useState({ isError: false, message: "" });
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log();
     posts.forEach((post) => {
       if (post._id === postId) {
         setPost({ ...post });
       }
     });
-  }, []);
+  }, [postId, posts]);
 
   //controlled textarea
   const onMessageInputChange = (event) => {
@@ -33,25 +34,9 @@ const AddMessagePage = ({ user, posts }) => {
   //sending the message
   const onSubmitFormHandler = async (event) => {
     event.preventDefault();
-    try {
-      const response = await fetch(`${apiBaseUrl}/posts/${post._id}/messages`, {
-        method: "POST",
-        headers: makeHader(user),
-        body: JSON.stringify({
-          message: {
-            content: messageInput,
-          },
-        }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        setMessageInput("");
-      } else {
-        throw new Error(data.error.message);
-      }
-    } catch (error) {
-      console.log(error);
-      setError({ isError: true, message: error.message });
+    const result = dispatch(sendMessage(postId, messageInput, user));
+    if (result) {
+      setMessageInput("");
     }
   };
 
@@ -61,12 +46,6 @@ const AddMessagePage = ({ user, posts }) => {
         <p>Loading...</p>
       ) : (
         <>
-          <Snackbar
-            type="error"
-            message={error.message}
-            isOpen={error.isError}
-            setError={setError}
-          />
           <PostInfo data={post} />
           <form
             className={classes["add-message__form"]}

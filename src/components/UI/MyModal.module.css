@@ -1,0 +1,70 @@
+.modal {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.disable {
+  display: none;
+}
+
+.modal-window {
+  position: relative;
+  z-index: 11;
+  background-color: #fff;
+  padding: 2rem 2rem 1rem;
+  border: 2px solid #ff3131;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 15px 3px #9b27b0;
+  max-width: 90%;
+}
+
+.title,
+.text {
+  margin-bottom: 1rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.actions button {
+  margin-left: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  background-color: transparent;
+  color: #444;
+  width: 100px;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+}
+
+.actions .cancel {
+  border: 2px solid #1776d2;
+  color: #1776d2;
+}
+
+.cancel:hover {
+  background-color: #1776d2;
+  color: #fff;
+}
+
+.actions .yes {
+  border: 2px solid #ff3131;
+  color: #ff3131;
+}
+
+.yes:hover {
+  background-color: #ff3131;
+  color: #fff;
+}

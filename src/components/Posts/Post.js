@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useSelector } from "react-redux";
 
 import Paper from "@mui/material/Paper";
 import Tooltip from "@mui/material/Tooltip";
@@ -8,24 +9,21 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { StyledButton } from "../UI/StyledButton";
 
+import MyModal from "../UI/MyModal";
 import PostInfo from "./PostInfo";
+import { deletePost } from "../../store/postsActions";
 
 import classes from "./Post.module.css";
 
-const Post = ({ data, setShowModal, user, setDeletedPost, deletedPost }) => {
+const Post = ({ data }) => {
+  const user = useSelector((state) => state.user.user);
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
   //set delete Post
   const onDeleteClickHandler = (event) => {
-    setDeletedPost(data);
+    setShowModal(true);
   };
-
-  //then show Modal
-  useEffect(() => {
-    if (deletedPost) {
-      setShowModal(true);
-    }
-  }, [deletedPost]);
 
   const onEditClickHandler = (event) => {
     navigate(`/posts/edit/${data._id}`);
@@ -39,6 +37,16 @@ const Post = ({ data, setShowModal, user, setDeletedPost, deletedPost }) => {
 
   return (
     <>
+      <MyModal
+        title={`Delete -${data.title}-?`}
+        text={"Are you sure you want to delete this post?"}
+        onYesClickFunc={() => {
+          return deletePost(data._id, user);
+        }}
+        isOpen={showModal}
+        setIsOpen={setShowModal}
+        yesButtonText="DELETE"
+      />
       <Paper elevation={3} className={classes.post}>
         <PostInfo data={data} />
         {/* should be another component */}
@@ -50,7 +58,7 @@ const Post = ({ data, setShowModal, user, setDeletedPost, deletedPost }) => {
               </StyledButton>
             </>
           ) : null}
-          {data.isAuthor ? (
+          {data.isAuthor && user ? (
             <>
               {/* action buttons for isAuthor = true */}
               <Button variant="contained" onClick={onClickGoToPostHandler}>

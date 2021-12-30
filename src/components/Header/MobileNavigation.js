@@ -1,14 +1,25 @@
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
+
+import { userActions } from "../../store/userSlice";
 
 import classes from "./MobileNavigation.module.css";
 
-const MobileNavigation = ({
-  logUserOut,
-  user,
-  isMobileNavActive,
-  setMobileNavActive,
-}) => {
+const MobileNavigation = ({ isMobileNavActive, setMobileNavActive }) => {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.user);
+  const navigator = useNavigate();
+
+  const onClickLogOutHandler = (event) => {
+    setMobileNavActive(false);
+    dispatch(userActions.logoutUser());
+    // maybe you need navigation logic;
+
+    navigator("/");
+  };
+
   const [isActive, setIsActive] = useState(false);
   useEffect(() => {
     setIsActive(isMobileNavActive);
@@ -64,16 +75,7 @@ const MobileNavigation = ({
             Login/Singup
           </NavLink>
         )}
-        {user && (
-          <button
-            onClick={(event) => {
-              setMobileNavActive(false);
-              logUserOut(event);
-            }}
-          >
-            Logout
-          </button>
-        )}
+        {user && <button onClick={onClickLogOutHandler}>Logout</button>}
       </nav>
     </>
   );
